@@ -15,8 +15,11 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Lib
-  build-depends:       base >= 4.7 && < 5
+  exposed-modules:     Lib, Types, Conversion
+  build-depends:       base >= 4.7 && < 5,
+                       aeson ,
+                       text ,
+                       lens
   default-language:    Haskell2010
 
 executable nfl-rushing-exe
@@ -25,6 +28,8 @@ executable nfl-rushing-exe
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , nfl-rushing
+                     , aeson
+                     , bytestring
   default-language:    Haskell2010
 
 test-suite nfl-rushing-test

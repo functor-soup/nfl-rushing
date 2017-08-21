@@ -5,7 +5,7 @@ module Conversion
   ) where
 
 import Data.Monoid
-import Data.Text
+import Data.Text.Lazy
 import Types
 
 lngSep :: Text

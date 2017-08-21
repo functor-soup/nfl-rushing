@@ -8,7 +8,8 @@ module Types
 
 import Control.Applicative
 import Data.Aeson
-import Data.Text
+import qualified Data.Csv as C
+import Data.Text.Lazy
 import GHC.Generics
 
 data Player = Player
@@ -32,7 +33,8 @@ data Player = Player
 instance FromJSON Player where
   parseJSON =
     withObject "Player" $ \v ->
-      Player <$> v .: "Player" <*> v .: "Team" <*> v .: "Pos" <*> v .: "Att" <*> v .: "Att/G" <*>
+      Player <$> v .: "Player" <*> v .: "Team" <*> v .: "Pos" <*> v .: "Att" <*>
+      v .: "Att/G" <*>
       ((Left <$> v .: "Yds") <|> (Right <$> v .: "Yds")) <*>
       v .: "Avg" <*>
       v .: "Yds/G" <*>
@@ -60,8 +62,10 @@ data CleanedPlayer = CPlayer
   , twentyPlus_ :: Float
   , fortyPlus_ :: Float
   , fumble_ :: Float
-  } deriving (Show)
+  } deriving (Show, Generic)
 
+
+-- instance for writing to Json
 instance ToJSON CleanedPlayer where
   toJSON (CPlayer name team pos att attG yds avg ydsG td lng fst fstPercent twentyP fortyP fumble) =
     object
@@ -81,4 +85,26 @@ instance ToJSON CleanedPlayer where
       , "20+" .= twentyP
       , "40+" .= fortyP
       , "FUM" .= fumble
+      ]
+
+-- instance for writing to CSV
+instance C.ToNamedRecord CleanedPlayer where
+  toNamedRecord (CPlayer name team pos att attG yds avg ydsG td lng fst fstPercent twentyP fortyP fumble) =
+    C.namedRecord
+      [ "Player" C..= name
+      , "Team" C..= team
+      , "Team" C..= team
+      , "Pos" C..= pos
+      , "Att" C..= att
+      , "Att/G" C..= attG
+      , "Yds" C..= yds
+      , "Avg" C..= avg
+      , "Yds/G" C..= ydsG
+      , "TD" C..= td
+      , "Lng" C..= lng
+      , "1st" C..= fst
+      , "1st%" C..= fstPercent
+      , "20+" C..= twentyP
+      , "40+" C..= fortyP
+      , "FUM" C..= fumble
       ]

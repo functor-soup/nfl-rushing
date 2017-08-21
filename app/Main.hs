@@ -3,12 +3,13 @@ module Main where
 import Conversion
 import Data.Aeson
 import qualified Data.ByteString.Lazy as B
+import System.Exit
 import Lib
 import Types
+import Server
 
 main :: IO ()
 main = do
   bb <- B.readFile "rushing.json"
   let a = eitherDecode bb :: Either String [Player]
-  putStrLn . show . fmap (map _yds) $ a
-  putStrLn . show . fmap (map $ yds_ . conversion) $ a
+  either die (server . map conversion) a

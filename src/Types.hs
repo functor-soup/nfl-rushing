@@ -4,6 +4,7 @@
 module Types
   ( Player(..)
   , CleanedPlayer(..)
+  , csvHeader
   ) where
 
 import Control.Applicative
@@ -64,13 +65,11 @@ data CleanedPlayer = CPlayer
   , fumble_ :: Float
   } deriving (Show, Generic)
 
-
 -- instance for writing to Json
 instance ToJSON CleanedPlayer where
   toJSON (CPlayer name team pos att attG yds avg ydsG td lng fst fstPercent twentyP fortyP fumble) =
     object
       [ "Player" .= name
-      , "Team" .= team
       , "Team" .= team
       , "Pos" .= pos
       , "Att" .= att
@@ -93,7 +92,6 @@ instance C.ToNamedRecord CleanedPlayer where
     C.namedRecord
       [ "Player" C..= name
       , "Team" C..= team
-      , "Team" C..= team
       , "Pos" C..= pos
       , "Att" C..= att
       , "Att/G" C..= attG
@@ -108,3 +106,23 @@ instance C.ToNamedRecord CleanedPlayer where
       , "40+" C..= fortyP
       , "FUM" C..= fumble
       ]
+
+csvHeader :: C.Header
+csvHeader =
+  C.header
+    [ "Player"
+    , "Team"
+    , "Pos"
+    , "Att"
+    , "Att/G"
+    , "Yds"
+    , "Avg"
+    , "Yds/G"
+    , "TD"
+    , "Lng"
+    , "1st"
+    , "1st%"
+    , "20+"
+    , "40+"
+    , "FUM"
+    ]

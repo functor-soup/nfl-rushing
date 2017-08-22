@@ -8,8 +8,11 @@ import Lib
 import Types
 import Server
 
+port :: Int
+port = 8000
+
 main :: IO ()
 main = do
   bb <- B.readFile "rushing.json"
   let a = eitherDecode bb :: Either String [Player]
-  either die (server . map conversion) a
+  either die (flip server port . map conversion) a

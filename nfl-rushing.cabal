@@ -15,7 +15,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Lib, Types, Conversion, Server
+  exposed-modules:     Lib, Types, Conversion, Server, Query
   build-depends:       base >= 4.7 && < 5,
                        aeson ,
                        text ,

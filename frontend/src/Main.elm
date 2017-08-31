@@ -1,7 +1,8 @@
 module Main exposing (..)
 
-import Html exposing (Html, text, div, img, button, text, program, p, thead, th, td, tr,table, tbody)
-import Html.Attributes exposing (src)
+import Html exposing (Html, a, text, div, img, button, text, program, p, thead, th, td, tr,table, tbody)
+import Html.Attributes exposing (src, target, href)
+import Html.Events exposing (onClick)
 import Json.Decode exposing (int, string, float, Decoder, list)
 import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
 import Keyboard
@@ -16,7 +17,9 @@ main =
     , subscriptions = subscriptions
     }
 
-type Msg =  Data (Result Http.Error Model)
+type Msg =  Data (Result Http.Error (List Player)) | IncPage | DecPage | Clear | QUERY QueryState  
+
+type QueryState = TD_ASC | TD_DESC | YDS_ASC | YDS_DESC | LNG_ASC | LNG_DESC | NAME String
 
 type alias Player = {
     name : String
@@ -34,13 +37,18 @@ type alias Player = {
   , twentyPlus : Float
   , fortyPlus : Float
   , fumble : Float
-
 }
 
-type alias Model = List Player
+type alias Model = { players : List Player,
+                     pageCount: Int ,
+                     query: Maybe String,
+                     page: Int }
+
+initialModel : Model 
+initialModel = { players = [], pageCount = 10 , query = Nothing, page = 0 }
 
 init: (Model, Cmd Msg)
-init =  ([], getPlayers)
+init =  (initialModel, initialModel |> constructUrl |> getPlayers)
 
 url : String
 url = "http://localhost:8000/players"
@@ -88,8 +96,11 @@ playerDecoder =
     |> required "FUM" float
 
 view : Model -> Html Msg
-view model = table []
-        [ thead []
+view model = div [] 
+          [ button [onClick IncPage] [text "forward"],
+            button [onClick DecPage] [text "backward"],
+            a [href (model |> constructUrl |> csvUrl), target "_blank" ] [text "View Download"],
+          table [] [ thead []
             [ th [][text "Player"]
             , th [][text "Team"]
             , th [][text "Pos"]
@@ -106,17 +117,42 @@ view model = table []
             , th [][text "40+"]
             , th [][text "FUM"]
             ]
-        , tbody [] (List.map toTableRow model)
-        ]
+        , tbody [] (List.map toTableRow model.players)
+        ]]
 
-getPlayers : Cmd Msg
-getPlayers =
+
+constructUrl : Model -> String
+constructUrl model = String.concat [url, "?limit=", (toString model.pageCount), "&page=", (toString model.page)]
+
+csvUrl : String -> String 
+csvUrl x = x ++ "&csv=chimichanga"
+
+getPlayers : String ->  Cmd Msg
+getPlayers url =
   let a = Http.get url (list playerDecoder) 
   in Http.send Data a 
 
+
 update : Msg -> Model ->(Model, Cmd Msg)
-update x model =  case x of Data (Ok players) -> (players, Cmd.none)
+update x model =  case x of Data (Ok players) -> ({ model | players = players }, Cmd.none)
                             Data (Err _) -> (model, Cmd.none)
+                            IncPage -> let nmodel =  {model | page = model.page + 1}
+                                       in (nmodel, nmodel |> constructUrl |> getPlayers )
+                            DecPage -> let nmodel =  {model | page = model.page - 1}
+                                       in (nmodel, nmodel |> constructUrl |> getPlayers )
+                            Clear -> let nmodel =  {model | query = Nothing, pageCount = 10, page = 0}
+                                       in (nmodel, nmodel |> constructUrl |> getPlayers )
+                            TD_ASC -> let nmodel =  {model | query = Just "sort=td&direction=asc"}
+                                       in (nmodel, nmodel |> constructUrl |> getPlayers )
+                            QUERY x -> case x of TD_DESC ->
+                                                 YDS_ASC -> 
+                                                 YDS_DESC -> 
+                                                 LNG_ASC -> 
+                                                 LNG_DESC -> 
+                                                 NAME String                            
+
+
+
 
 subscriptions : Model -> Sub Msg
 subscriptions model = Sub.none

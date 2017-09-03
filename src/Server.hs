@@ -13,7 +13,7 @@ import Data.Text.Lazy (Text, unpack)
 import Prelude hiding (lookup)
 import Query (layer, layerTraversal, stringedParams)
 import Text.Read (readMaybe)
-import Types (CleanedPlayer(..), csvHeader)
+import Types (CleanedPlayer(..), ApiResponse(..), csvHeader)
 import Utils (group)
 import Web.Scotty
 
@@ -36,14 +36,17 @@ search x = do
         paginParams >>=
         mapM (fmap abs . readMaybe . unpack) &
         maybe
-          results
-          (\[x, y] -> concat . take 1 . drop (y - 1) . group x $ results)
+          (ApiResponse results 0 0)
+          (\[x, y] -> let groups = group x $ results
+                          lgroups = length groups
+                          r = concat . take 1 . drop (y - 1) $ groups
+                       in ApiResponse r y  lgroups)
   maybe
     (json presults)
     (\_ -> do
        setHeader "Content-type" "text/csv"
        setHeader "Content-disposition" $ "attachment;filename=" <> fileName
-       raw $ C.encodeByName csvHeader presults)
+       raw $ C.encodeByName csvHeader $ payload presults)
     (lookup "csv" p)
 
 -- ========================== main server export ========================================

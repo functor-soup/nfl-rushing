@@ -4,6 +4,7 @@
 module Types
   ( Player(..)
   , CleanedPlayer(..)
+  , ApiResponse(..)
   , csvHeader
   ) where
 
@@ -126,3 +127,11 @@ csvHeader =
     , "40+"
     , "FUM"
     ]
+
+data ApiResponse = ApiResponse {
+                               payload :: [CleanedPlayer] ,
+                               currentPage :: Int,
+                               remainPages :: Int
+                               } deriving (Show, Generic)
+
+instance ToJSON ApiResponse

@@ -131,7 +131,7 @@ csvHeader =
 data ApiResponse = ApiResponse {
                                payload :: [CleanedPlayer] ,
                                currentPage :: Int,
-                               remainPages :: Int
+                               totalPages :: Int
                                } deriving (Show, Generic)
 
 instance ToJSON ApiResponse

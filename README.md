@@ -54,6 +54,6 @@ In most cases the response structure will be as follows
 | `/alive` | GET | heart beat route | text |
 | `/players`    |    GET    | get all players | ApiResponse Type |
 | `/players?limit={n}&page={i}`| GET | Get a apaginated version of players | ApiResponse Type |
-| `/players?name=Something something` | GET | Get a player by string strict matching on given name value | ApiResponse Type |
-| `/players?sort={fieldName}&direction={asc|desc}` | GET | Get players sorted on field name and in a given direction (ascending or descending) | ApiResponse Type |
+| `/players?name={Something something}` | GET | Get a player by fuzzy matching on given name value | ApiResponse Type |
+| `/players?sort={fieldName}&direction={asc :or: desc}` | GET | Get players sorted on field name and in a given direction (ascending or descending) | ApiResponse Type |
 | `/players?csv=true`| GET | generally, one can append `csv=true` to the end of the search query and get the results in form of a csv | browser opens up a csv file |

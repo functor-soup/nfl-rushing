@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (Html, a, text, div, img, button, text, program, p, thead, th, td, tr,table, tbody, input)
-import Html.Attributes exposing (src, target, href, hidden, class)
+import Html.Attributes exposing (src, target, href, hidden, class, placeholder)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Types exposing (..)
@@ -12,6 +12,14 @@ import Bootstrap.Table as T
 import Bootstrap.Button as B
 import Bootstrap.Grid.Row as Row
 import Bootstrap.Grid.Col as Col
+import Bootstrap.Form.Input as Input
+
+
+upSymbol : String
+upSymbol = "↑" 
+
+downSymbol : String
+downSymbol = "↓"
 
 url : String
 url = "http://localhost:8000/players"
@@ -65,7 +73,7 @@ view model = let bfv = hideForwardButton model
                  bbv = hideBackwardButton model
              in  Grid.container [] 
              [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS,
-             , Grid.row [] [ Grid.col [] [input [onInput (\x -> QUERY (NAME x))] []] ]
+             , Grid.row [] [ Grid.col [] [Input.text [Input.attrs [onInput (\x -> QUERY (NAME x)), placeholder "Search by Player name"]]] ]
              , Grid.row [] [ Grid.col [] [ B.button [ B.primary, B.attrs [onClick IncPage, hidden bfv, class "float-right"]] [text "next page"]
                                          , B.button [ B.primary, B.attrs [onClick DecPage, hidden bbv, class "float-left"]] [text "prev page"]]]
              , Grid.row [Row.centerXs] [ Grid.col [Col.xs4] [ B.linkButton [B.primary, B.attrs [href (model |> constructUrl |> csvUrl), target "_blank"]] [text "Page CSV Download"]]]
@@ -79,11 +87,11 @@ view model = let bfv = hideForwardButton model
                    , T.th [][text "Pos"] 
                    , T.th [][text "Att"] 
                    , T.th [][text "Att/G"] 
-                   , T.th [][text "Yds" , button [onClick (QUERY YDS_ASC)][text "up"], button [onClick (QUERY YDS_DESC)][text "down"]] 
+                   , T.th [][text "Yds" , button [onClick (QUERY YDS_ASC)][text upSymbol], button [onClick (QUERY YDS_DESC)][text downSymbol]] 
                    , T.th [][text "Avg"] 
                    , T.th [][text "Yds/G"] 
-                   , T.th [][text "TD",button [onClick (QUERY TD_ASC)][text "up"], button [onClick (QUERY TD_DESC)][text "down"]] 
-                   , T.th [][text "Lng",button [onClick (QUERY LNG_ASC)][text "up"], button [onClick (QUERY LNG_DESC)][text "down"]] 
+                   , T.th [][text "TD",button [onClick (QUERY TD_ASC)][text upSymbol], button [onClick (QUERY TD_DESC)][text downSymbol]] 
+                   , T.th [][text "Lng",button [onClick (QUERY LNG_ASC)][text upSymbol], button [onClick (QUERY LNG_DESC)][text downSymbol]] 
                    , T.th [][text "1st"] 
                    , T.th [][text "1st%"] 
                    , T.th [][text "20+"] 
@@ -128,13 +136,13 @@ update x model =  case x of Data (Ok response) -> ({ model | players = response.
                                                            in (nmodel, nmodel |> constructUrl |> getPlayers )
                                                  YDS_ASC -> let nmodel =  {model | query = "&sort=yds&direction=asc"} 
                                                             in (nmodel, nmodel |> constructUrl |> getPlayers )
-                                                 YDS_DESC -> let nmodel =  {model | query = "&yds=td&direction=desc"} 
+                                                 YDS_DESC -> let nmodel =  {model | query = "&sort=yds&direction=desc"} 
                                                              in (nmodel, nmodel |> constructUrl |> getPlayers )
                                                  LNG_ASC ->  let nmodel =  {model | query = "&sort=lng&direction=asc"} 
                                                              in (nmodel, nmodel |> constructUrl |> getPlayers )
                                                  LNG_DESC -> let nmodel =  {model | query = "&sort=lng&direction=desc"} 
                                                              in (nmodel, nmodel |> constructUrl |> getPlayers )
-                                                 NAME y -> let nmodel =  {model | query = "&name=" ++ y} 
+                                                 NAME y -> let nmodel =  {model | query = "&name=" ++ y, page = 0 } 
                                                            in (nmodel, nmodel |> constructUrl |> getPlayers )
 
 subscriptions : Model -> Sub Msg

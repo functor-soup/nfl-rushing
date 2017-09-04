@@ -1,11 +1,17 @@
 module Main exposing (..)
 
 import Html exposing (Html, a, text, div, img, button, text, program, p, thead, th, td, tr,table, tbody, input)
-import Html.Attributes exposing (src, target, href, hidden)
+import Html.Attributes exposing (src, target, href, hidden, class)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Types exposing (..)
 import List exposing (all)
+import Bootstrap.CDN as CDN
+import Bootstrap.Grid as Grid
+import Bootstrap.Table as T
+import Bootstrap.Button as B
+import Bootstrap.Grid.Row as Row
+import Bootstrap.Grid.Col as Col
 
 url : String
 url = "http://localhost:8000/players"
@@ -33,58 +39,63 @@ init: (Model, Cmd Msg)
 init =  (initialModel, initialModel |> constructUrl |> getPlayers)
 
 
-toTableRow: Player -> Html Msg
+toTableRow: Player -> T.Row Msg
 toTableRow x =
-  tr []
+  T.tr []
      [
-     td[][text x.name],
-     td[][text x.team],
-     td[][text x.pos],
-     td[][text (toString x.att)],
-     td[][text (toString x.attG)],
-     td[][text (toString x.yds)],
-     td[][text (toString x.avg)],
-     td[][text (toString x.ydsG)],
-     td[][text (toString x.td)],
-     td[][text (toString x.lng)],
-     td[][text (toString x.fst)],
-     td[][text (toString x.fstPercent)],
-     td[][text (toString x.twentyPlus)],
-     td[][text (toString x.fortyPlus)],
-     td[][text (toString x.fumble)]
+     T.td[][text x.name],
+     T.td[][text x.team],
+     T.td[][text x.pos],
+     T.td[][text (toString x.att)],
+     T.td[][text (toString x.attG)],
+     T.td[][text (toString x.yds)],
+     T.td[][text (toString x.avg)],
+     T.td[][text (toString x.ydsG)],
+     T.td[][text (toString x.td)],
+     T.td[][text (toString x.lng)],
+     T.td[][text (toString x.fst)],
+     T.td[][text (toString x.fstPercent)],
+     T.td[][text (toString x.twentyPlus)],
+     T.td[][text (toString x.fortyPlus)],
+     T.td[][text (toString x.fumble)]
      ]
 
 view : Model -> Html Msg
 view model = let bfv = hideForwardButton model
                  bbv = hideBackwardButton model
-             in div [] 
-             [ 
-             input [onInput (\x -> QUERY (NAME x))] [],
-             button [onClick IncPage, hidden bfv] [text "forward"], 
-             button [onClick DecPage, hidden bbv] [text "backward"], 
-             a [href (model |> constructUrl |> csvUrl), target "_blank" ] [text "Page CSV Download"], 
-             table [] [ thead [] 
-             [ th [][text "Player"]
-            , th [][text "Team"]
-            , th [][text "Pos"]
-            , th [][text "Att"]
-            , th [][text "Att/G"]
-            , th [][text "Yds" , button [onClick (QUERY YDS_ASC)][text "up"], button [onClick (QUERY YDS_DESC)][text "down"]]
-            , th [][text "Avg"]
-            , th [][text "Yds/G"]
-            , th [][text "TD",button [onClick (QUERY TD_ASC)][text "up"], button [onClick (QUERY TD_DESC)][text "down"]]
-            , th [][text "Lng",button [onClick (QUERY LNG_ASC)][text "up"], button [onClick (QUERY LNG_DESC)][text "down"]]
-            , th [][text "1st"]
-            , th [][text "1st%"]
-            , th [][text "20+"]
-            , th [][text "40+"]
-            , th [][text "FUM"]
-            ]
-        , tbody [] (List.map toTableRow model.players)
-        ]
-        , button [onClick Clear] [text "Clear"]
-        , a [href (model |> constructUrlWithoutPageLimit |> csvUrl), target "_blank" ] [text "Full CSV Download"]
-        ]
+             in  Grid.container [] 
+             [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS,
+             , Grid.row [] [ Grid.col [] [input [onInput (\x -> QUERY (NAME x))] []] ]
+             , Grid.row [] [ Grid.col [] [ B.button [ B.primary, B.attrs [onClick IncPage, hidden bfv, class "float-right"]] [text "next page"]
+                                         , B.button [ B.primary, B.attrs [onClick DecPage, hidden bbv, class "float-left"]] [text "prev page"]]]
+             , Grid.row [Row.centerXs] [ Grid.col [Col.xs4] [ B.linkButton [B.primary, B.attrs [href (model |> constructUrl |> csvUrl), target "_blank"]] [text "Page CSV Download"]]]
+             , Grid.row [] 
+             [ Grid.col []
+                [ 
+                  T.table 
+                  { options = [ T.striped], 
+                   thead = T.simpleThead [ T.th [][text "Player"] 
+                   , T.th [][text "Team"] 
+                   , T.th [][text "Pos"] 
+                   , T.th [][text "Att"] 
+                   , T.th [][text "Att/G"] 
+                   , T.th [][text "Yds" , button [onClick (QUERY YDS_ASC)][text "up"], button [onClick (QUERY YDS_DESC)][text "down"]] 
+                   , T.th [][text "Avg"] 
+                   , T.th [][text "Yds/G"] 
+                   , T.th [][text "TD",button [onClick (QUERY TD_ASC)][text "up"], button [onClick (QUERY TD_DESC)][text "down"]] 
+                   , T.th [][text "Lng",button [onClick (QUERY LNG_ASC)][text "up"], button [onClick (QUERY LNG_DESC)][text "down"]] 
+                   , T.th [][text "1st"] 
+                   , T.th [][text "1st%"] 
+                   , T.th [][text "20+"] 
+                   , T.th [][text "40+"] 
+                   , T.th [][text "FUM"] 
+                   ], 
+                   tbody = T.tbody [] (List.map toTableRow model.players) 
+                   } 
+                   , B.button [B.secondary , B.attrs [onClick Clear, class "float-right"]] [text "Clear"] 
+                   , a [href (model |> constructUrlWithoutPageLimit |> csvUrl), target "_blank" ] [text "Full CSV Download"] 
+                ] ] 
+             ]
 
 
 constructUrl : Model -> String

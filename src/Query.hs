@@ -11,7 +11,7 @@ import Data.Map.Strict
        (Map(..), (!), filterWithKey, fromList, keys, lookup)
 import qualified Data.Map.Strict as M
 import Data.Ord (comparing)
-import Data.Text.Lazy (Text, toLower)
+import Data.Text.Lazy (Text, toLower, isInfixOf)
 import Prelude hiding (lookup)
 import Types (CleanedPlayer(..))
 
@@ -26,7 +26,7 @@ layer =
   fromList
     [ ("sort", \x y -> maybe x (\a -> sortBy a x) (lookup y sortify))
     , ("direction", flip orderify)
-    , ("name", \x y -> filter ((==) (toLower y) . toLower . name_) x)
+    , ("name", \x y -> filter (isInfixOf (toLower y) . toLower . name_) x)
     ]
 
 -- responsible for laying out the order of the list to be sent back

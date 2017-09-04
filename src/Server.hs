@@ -39,7 +39,7 @@ search x = do
           (ApiResponse results 0 0)
           (\[x, y] -> let groups = group x $ results
                           lgroups = length groups
-                          r = concat . take 1 . drop (y - 1) $ groups
+                          r = concat . take 1 . drop y $ groups
                        in ApiResponse r y  lgroups)
   maybe
     (json presults)

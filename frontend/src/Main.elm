@@ -110,7 +110,7 @@ constructUrl : Model -> String
 constructUrl model = String.concat [url, "?limit=", (toString model.pageCount), "&page=", (toString model.page), (model.query)]
 
 constructUrlWithoutPageLimit : Model -> String
-constructUrlWithoutPageLimit model = String.concat [url,(model.query)]
+constructUrlWithoutPageLimit model = String.concat [url,"?", model.query]
 
 csvUrl : String -> String 
 csvUrl x = x ++ "&csv=chimichanga"

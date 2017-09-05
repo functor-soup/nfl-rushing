@@ -23,7 +23,8 @@ library
                        scotty ,
                        cassava ,
                        containers,
-                       transformers
+                       transformers,
+                       wai-middleware-static
   default-language:    Haskell2010
 
 executable nfl-rushing-exe

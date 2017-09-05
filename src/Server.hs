@@ -16,9 +16,13 @@ import Text.Read (readMaybe)
 import Types (CleanedPlayer(..), ApiResponse(..), csvHeader)
 import Utils (group)
 import Web.Scotty
+import Network.Wai.Middleware.Static
 
 fileName :: Text
 fileName = "Players.csv"
+
+staticDirectory :: String
+staticDirectory = "./frontend/build"
 
 -- ============================== Routes ==============================================
 heartBeatRoute :: ActionM ()
@@ -49,9 +53,13 @@ search x = do
        raw $ C.encodeByName csvHeader $ payload presults)
     (lookup "csv" p)
 
+
+
 -- ========================== main server export ========================================
 routes :: [CleanedPlayer] -> ScottyM ()
-routes x = get "/alive" heartBeatRoute >> get "/players" (search x)
+routes x = do
+  middleware $ staticPolicy (noDots >-> addBase staticDirectory)
+  get "/alive" heartBeatRoute >> get "/players" (search x) >> (get "/" $ file "./frontend/build/index.html")
 
 server :: [CleanedPlayer] -> Int -> IO ()
 server x port = scotty port (routes x)

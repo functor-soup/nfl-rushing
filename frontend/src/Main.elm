@@ -22,7 +22,7 @@ downSymbol : String
 downSymbol = "↓"
 
 url : String
-url = "http://localhost:8000/players"
+url = "/players"
 
 main =
   Html.program

@@ -74,4 +74,5 @@ In most cases the response structure will be as follows
 2. haskell code could be made a lot cleaner
 3. The frontend could be made a lot prettier
 4. The user should be able to change the number of entries per page, though the rest functionality exists the feature is not present on the frontend
-5. Tests
+5. Secondary sorting
+6. Tests
